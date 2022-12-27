@@ -6,22 +6,66 @@
 // for product’s image upload (POST /product/:id/upload)
 // POST  Review /products/:productId/reviews
 import express from "express";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import uniqid from "uniqid";
 const productsRouter = express.Router();
 
+const productsJSONPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "products.json"
+);
+//-----------------GET ID--------------
 productsRouter.get("/:productId", (req, res) => {
-  res.send("Am I working?");
-}); //single productS
+  const productId = req.params.productId;
+  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
+  const product = productsArray.find((product) => {
+    product.id === productId;
+  });
+  res.send(product);
+}); //single product
+//--------------PUT----------------
 productsRouter.put("/:productId", (req, res) => {
-  res.send("Am I working?");
+  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
+  const index = productsArray.findIndex(
+    (product) => product.id === req.params.productId
+  );
+  const oldProduct = productsArray[index];
+  const updatedProduct = { ...oldProduct, ...req.body, updatedAt: new Date() };
+  productsArray[index] = updatedProduct;
+  fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
+  res.send(updatedProduct);
 }); //single product
+//------------DELETE---------------
 productsRouter.delete("/:productId", (req, res) => {
-  res.send("Am I working?");
+  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
+  const remainingProducts = productsArray.filter(
+    (product) => product.id !== req.params.productId
+  );
+  fs.writeFileSync(usersJSONPath, JSON.stringify(remainingUsers));
+  res.send("Deleted successfully");
 }); //single product
+//---------------POST--------------
 productsRouter.post("/", (req, res) => {
-  res.send("Am I working?");
+  //Server generated info
+  const newProduct = {
+    ...req.body,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    id: uniqid(),
+  };
+  console.log(newProduct);
+  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
+  productsArray.push(newProduct);
+  fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
+  res.status(201).send({ id: newProduct.id });
 }); //products
+//--------------GET ALL---------------
 productsRouter.get("/", (req, res) => {
-  res.send("Am I working?");
+  const fileContentAsABuffer = fs.readFileSync(productsJSONPath);
+  const productsArray = JSON.parse(fileContentAsABuffer);
+  res.send(productsArray);
 }); //products
 
 export default productsRouter;
