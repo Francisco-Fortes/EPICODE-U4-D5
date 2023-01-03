@@ -1,9 +1,52 @@
 [
   {
-    "name": "3310",
-    "description": "somthing longer",
-    "brand": "nokia",
-    "price": 100,
-    "category": "smartphones"
+    "name": "14",
+    "description": "amazing",
+    "brand": "piphone",
+    "price": 852,
+    "category": "smartphones",
+    "createdAt": "2022-12-27T21:00:58.669Z",
+    "updatedAt": "2022-12-27T21:00:58.669Z",
+    "id": "bmfi7qglc6pqilp"
+  },
+  {
+    "name": "50",
+    "description": "amazing",
+    "brand": "piphone",
+    "price": 852,
+    "category": "smartphones",
+    "createdAt": "2023-01-02T15:18:09.994Z",
+    "updatedAt": "2023-01-02T15:18:43.879Z",
+    "id": "bmfiigwlcey4rpn"
+  },
+  {
+    "name": "Samsung Galaxy 43H",
+    "description": "boom",
+    "brand": "Samsung",
+    "price": 40,
+    "category": "smartphones",
+    "createdAt": "2023-01-03T15:33:34.307Z",
+    "updatedAt": "2023-01-03T15:33:34.307Z",
+    "id": "bmfinaolcge4fl0"
+  },
+  {
+    "name": "ASUS TUF Gaming A15 FA507RC-HN028W",
+    "description": "ok",
+    "brand": "ASUS",
+    "price": 1200,
+    "category": "laptops",
+    "createdAt": "2023-01-03T15:36:05.577Z",
+    "updatedAt": "2023-01-03T15:36:05.577Z",
+    "id": "bmfinaolcge7oax"
+  },
+  {
+    "name": "PS5",
+    "description": "INCREDIBLE",
+    "brand": "Sony",
+    "price": 3000,
+    "category": "consoles",
+    "createdAt": "2023-01-03T16:03:44.959Z",
+    "updatedAt": "2023-01-03T16:03:44.959Z",
+    "id": "bmfiiqolcgf78ox"
   }
 ]

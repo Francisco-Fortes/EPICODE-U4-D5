@@ -16,10 +16,11 @@ const productsJSONPath = join(
   dirname(fileURLToPath(import.meta.url)),
   "products.json"
 );
+
+const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
 //-----------------GET ID--------------
 productsRouter.get("/:productId", (req, res) => {
   const productId = req.params.productId;
-  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
   const product = productsArray.find((product) => {
     product.id === productId;
   });
@@ -27,7 +28,6 @@ productsRouter.get("/:productId", (req, res) => {
 }); //single product
 //--------------PUT----------------
 productsRouter.put("/:productId", (req, res) => {
-  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
   const index = productsArray.findIndex(
     (product) => product.id === req.params.productId
   );
@@ -39,7 +39,6 @@ productsRouter.put("/:productId", (req, res) => {
 }); //single product
 //------------DELETE---------------
 productsRouter.delete("/:productId", (req, res) => {
-  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
   const remainingProducts = productsArray.filter(
     (product) => product.id !== req.params.productId
   );
@@ -49,6 +48,7 @@ productsRouter.delete("/:productId", (req, res) => {
 //---------------POST--------------
 productsRouter.post("/", (req, res) => {
   //Server generated info
+  console.log(req.body);
   const newProduct = {
     ...req.body,
     createdAt: new Date(),
@@ -56,16 +56,23 @@ productsRouter.post("/", (req, res) => {
     id: uniqid(),
   };
   console.log(newProduct);
-  const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
   productsArray.push(newProduct);
   fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
   res.status(201).send({ id: newProduct.id });
 }); //products
 //--------------GET ALL---------------
 productsRouter.get("/", (req, res) => {
+  console.log(req.query);
   const fileContentAsABuffer = fs.readFileSync(productsJSONPath);
   const productsArray = JSON.parse(fileContentAsABuffer);
-  res.send(productsArray);
+  if (req.query && req.query.category) {
+    const filteredProducts = productsArray.filter(
+      (product) => product.category === req.query.category
+    );
+    res.send(filteredProducts);
+  } else {
+    res.send(productsArray);
+  }
 }); //products
 
 export default productsRouter;
