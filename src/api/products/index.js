@@ -10,6 +10,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import uniqid from "uniqid";
+import { checksProductsSchema, checkValidationResult } from "./validators.js";
 const productsRouter = express.Router();
 
 const productsJSONPath = join(
@@ -19,59 +20,89 @@ const productsJSONPath = join(
 
 const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
 //-----------------GET ID--------------
-productsRouter.get("/:productId", (req, res) => {
-  const productId = req.params.productId;
-  const product = productsArray.find((product) => {
-    product.id === productId;
-  });
-  res.send(product);
+productsRouter.get("/:productId", (req, res, next) => {
+  try {
+    const productId = req.params.productId;
+    const product = productsArray.find((product) => {
+      product.id === productId;
+    });
+    res.send(product);
+  } catch (error) {
+    next(error);
+  }
 }); //single product
 //--------------PUT----------------
-productsRouter.put("/:productId", (req, res) => {
-  const index = productsArray.findIndex(
-    (product) => product.id === req.params.productId
-  );
-  const oldProduct = productsArray[index];
-  const updatedProduct = { ...oldProduct, ...req.body, updatedAt: new Date() };
-  productsArray[index] = updatedProduct;
-  fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
-  res.send(updatedProduct);
+productsRouter.put("/:productId", (req, res, next) => {
+  try {
+    const index = productsArray.findIndex(
+      (product) => product.id === req.params.productId
+    );
+    const oldProduct = productsArray[index];
+    const updatedProduct = {
+      ...oldProduct,
+      ...req.body,
+      updatedAt: new Date(),
+    };
+    productsArray[index] = updatedProduct;
+    fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
+    res.send(updatedProduct);
+  } catch (error) {
+    next(error);
+  }
 }); //single product
 //------------DELETE---------------
-productsRouter.delete("/:productId", (req, res) => {
-  const remainingProducts = productsArray.filter(
-    (product) => product.id !== req.params.productId
-  );
-  fs.writeFileSync(usersJSONPath, JSON.stringify(remainingUsers));
-  res.send("Deleted successfully");
+productsRouter.delete("/:productId", (req, res, next) => {
+  try {
+    const remainingProducts = productsArray.filter(
+      (product) => product.id !== req.params.productId
+    );
+    fs.writeFileSync(usersJSONPath, JSON.stringify(remainingUsers));
+    res.send("Deleted successfully");
+  } catch (error) {
+    next(error);
+  }
 }); //single product
 //---------------POST--------------
-productsRouter.post("/", (req, res) => {
-  //Server generated info
-  console.log(req.body);
-  const newProduct = {
-    ...req.body,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: uniqid(),
-  };
-  console.log(newProduct);
-  productsArray.push(newProduct);
-  fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
-  res.status(201).send({ id: newProduct.id });
-}); //products
+productsRouter.post(
+  "/",
+  checksProductsSchema,
+  checkValidationResult,
+  (req, res, next) => {
+    try {
+      //Server generated info
+      console.log(req.body);
+      const newProduct = {
+        ...req.body,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        id: uniqid(),
+      };
+      console.log(newProduct);
+      productsArray.push(newProduct);
+      fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
+      res.status(201).send({ id: newProduct.id });
+    } catch (error) {
+      next(error);
+    }
+  }
+); //products
 //--------------GET ALL---------------
-productsRouter.get("/", (req, res) => {
-  console.log(req.query);
-  const fileContentAsABuffer = fs.readFileSync(productsJSONPath);
-  const productsArray = JSON.parse(fileContentAsABuffer);
-  if (req.query && req.query.category) {
-    const filteredProducts = productsArray.filter(
-      (product) => product.category === req.query.category
-    );
-    res.send(filteredProducts);
-  } else {
-    res.send(productsArray);
+productsRouter.get("/", (req, res, next) => {
+  try {
+    // console.log(req.query);
+    const fileContentAsABuffer = fs.readFileSync(productsJSONPath);
+    const productsArray = JSON.parse(fileContentAsABuffer);
+    //If there is a query that contains category then execute the if statement
+    if (req.query && req.query.category) {
+      const filteredProducts = productsArray.filter(
+        (product) => product.category === req.query.category
+      );
+      res.send(filteredProducts);
+    } else {
+      res.send(productsArray);
+    }
+  } catch (error) {
+    next(error);
   }
 }); //products
 
