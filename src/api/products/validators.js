@@ -1,6 +1,6 @@
 import { checkSchema } from "express-validator";
 import createHttpError from "http-errors";
-
+const { BadRequest } = createHttpError;
 const productSchema = {
   name: {
     in: ["body"],
@@ -42,8 +42,14 @@ export const checkValidationResult = (req, res, next) => {
   console.log(errors.array());
   //If the error list is not empty...
   if (!errors.isEmpty()) {
+    //Another way to do it
+    // next(
+    //     createHttpError(400, "Errors during product validation", {
+    //       errorList: errors.array(),
+    //     })
+    //   );
     next(
-      createHttpError(400, "Errors during product validation", {
+      BadRequest("Errors during product validation", {
         errorList: errors.array(),
       })
     );
