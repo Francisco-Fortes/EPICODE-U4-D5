@@ -1,24 +1,20 @@
-//User ENDPOINTS
-
-// USER CRUD ENDPOINTS
-// ENDPOINTS
-// CRUD for Products ( /products GET, POST, DELETE, PUT)
 // for product’s image upload (POST /product/:id/upload)
 // POST  Review /products/:productId/reviews
 import express from "express";
 import fs from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+
 import uniqid from "uniqid";
 import { checksProductsSchema, checkValidationResult } from "./validators.js";
+import { getProducts } from "../../utils/fs-tools.js";
+import { parseFile, uploadFile } from "../../utils/upload/index.js";
 const productsRouter = express.Router();
 
 const productsJSONPath = join(
   dirname(fileURLToPath(import.meta.url)),
   "products.json"
 );
-
 const productsArray = JSON.parse(fs.readFileSync(productsJSONPath));
+
 //-----------------GET ID--------------
 productsRouter.get("/:productId", (req, res, next) => {
   try {
@@ -31,6 +27,7 @@ productsRouter.get("/:productId", (req, res, next) => {
     next(error);
   }
 }); //single product
+
 //--------------PUT----------------
 productsRouter.put("/:productId", (req, res, next) => {
   try {
@@ -50,6 +47,31 @@ productsRouter.put("/:productId", (req, res, next) => {
     next(error);
   }
 }); //single product
+//-------------PUT IMAGE----------------
+productsRouter.put(
+  "/:productId/productImage",
+  parseFile.single("productImage"),
+  uploadFile,
+  async (req, res, next) => {
+    try {
+      const index = productsArray.findIndex(
+        (product) => product.id === req.params.productId
+      );
+      const oldProduct = productsArray[index];
+      const updatedProduct = {
+        ...oldProduct,
+        ...req.body,
+        updatedAt: new Date(),
+      };
+      productsArray[index] = updatedProduct;
+      fs.writeFileSync(productsJSONPath, JSON.stringify(productsArray));
+      res.send(updatedProduct);
+    } catch (error) {
+      next(error);
+    }
+  }
+); //single product
+
 //------------DELETE---------------
 productsRouter.delete("/:productId", (req, res, next) => {
   try {
@@ -62,6 +84,7 @@ productsRouter.delete("/:productId", (req, res, next) => {
     next(error);
   }
 }); //single product
+
 //---------------POST--------------
 productsRouter.post(
   "/",
@@ -86,6 +109,7 @@ productsRouter.post(
     }
   }
 ); //products
+
 //--------------GET ALL---------------
 productsRouter.get("/", (req, res, next) => {
   try {

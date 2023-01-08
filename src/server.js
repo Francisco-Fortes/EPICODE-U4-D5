@@ -12,6 +12,8 @@ const port = 3001;
 
 server.use(express.json());
 
+// server.use(express.static(publicDirectory));
+
 //ENDPOINTS
 server.use("/products", productsRouter);
 
